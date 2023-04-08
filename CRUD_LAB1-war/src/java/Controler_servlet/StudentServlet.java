@@ -6,8 +6,9 @@
 package Controler_servlet;
 
 
-import CRUD_LAB1.entity.Estudiantes;
-import CRUD_LAB1.session.EstudiantesFacadeLocal;
+
+import CRUD_LAB1.entity.Student;
+import CRUD_LAB1.session.StudentFacadeLocal;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.ejb.EJB;
@@ -25,41 +26,39 @@ import javax.servlet.http.HttpServletResponse;
 public class StudentServlet extends HttpServlet {
 
     @EJB
-    private EstudiantesFacadeLocal estudiantesFacade;
+    private StudentFacadeLocal studentFacade;
 
-    
-
-    
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+  
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String idStr=request.getParameter("studentId");
-        int id=Integer.parseInt(idStr);
-        
-        String firstName=request.getParameter("firstName");
-        String lastName=request.getParameter("lastName");
-        
-        
-        String yearStr=request.getParameter("yearLevel");
-        int yearLevel=Integer.parseInt(yearStr);
+        String action = request.getParameter("action");
+        String studentIdStr = request.getParameter("studentId");
+        int studentId = studentIdStr.equals("") ? 0 : Integer.parseInt(studentIdStr);
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
+        String yearLevelStr = request.getParameter("yearLevel");
+        int yearLevel=yearLevelStr.equals("") ? 0 : Integer.parseInt(yearLevelStr);
         
         
-        request.getParameter("action");
         
-        Estudiantes student=new Estudiantes(idStr,firstName,lastName,yearLevel);
-        estudiantesFacade.create(student);
+        
+        Student student=new Student(studentId,firstName,lastName,yearLevel);
+        
+        if (action.equalsIgnoreCase("Add")) {
+            studentFacade.addStudent(student);
+        }else if (action.equalsIgnoreCase("Edit")) {
+            studentFacade.editstudent(student);
+        }else if (action.equalsIgnoreCase("Delete")) {
+            studentFacade.deleteStudent(studentId);
+        }else if (action.equalsIgnoreCase("Search")) {
+            student = studentFacade.getStudent(studentId);
+        }else 
+            
+        studentFacade.create(student);
         response.setContentType("text/html;charset=UTF-8");
        
         request.setAttribute("student", student);
-        request.setAttribute("allStudents", estudiantesFacade.findAll());
+        request.setAttribute("allStudents", studentFacade.getAllstudents());
         request.getRequestDispatcher("studentInfo.jsp").forward (request,response);
     }
 
